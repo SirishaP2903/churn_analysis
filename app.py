@@ -1,47 +1,25 @@
-import streamlit as st
-import random
+from flask import Flask, request, render_template
+import pickle
+import numpy as np
 
-st.title(" ⁉️ Guess the Numer ⁉️")
+app = Flask(__name__)
 
-# initalize the random number
-if "secret_number" not in st.session_state:
-    st.session_state.secret_number = random.randint(1,100)
-    st.session_state.guesses = [0]
-    st.session_state.feedback = ""
+# load the model
 
-# take input from the user
-guess = st.number_input("Enter your guess:", min_value= 1, max_value=100, step=1)
+with open("model.pkl", "rb") as f:
+    model, scaler = pickle.load(f)
 
-if st.button("Submit Guess"):
-    if guess < 1 or guess > 100:
-        st.session_state.feedback = "Out of Bounds. Guess should be bewteen 1 to 100"
+@app.route('/')
+def home():
+    return render_template('index.html')
 
-    else:
-        st.session_state.guesses.append(guess)
-        num = st.session_state.secret_number
-    
-        if guess == num:
-            st.session_state.feedback = f"Congaratulations, you guesses it right in {len(st.session_state.guesses)-1} tries!"
-    
-        else:
-            if st.session_state.guesses[-2]:
-                if abs(num-guess) < abs(num-st.session_state.guesses[-2]):
-                    st.session_state.feedback = "🔥Warmer"
-                else:
-                    st.session_state.feedback = " 🥶Colder"
-                
-            else:
-                # first guess
-                if abs(guess-num) <= 10:
-                    st.session_state.feedback = "Warm"
-                else:
-                    st.session_state.feedback = "Cold"
-                    
-st.write(st.session_state.feedback)
+@app.route('/predict', methods=['POST'])
+def predict():
+    data = [float(x) for x in request.form.values()]
+    scaled_data = scaler.transform([data])
+    prediction = model.predict(scaled_data)[0]
+    result = "Customer is likely to churn" if prediction == 1 else "Cusotmer will stay"
+    return render_template('index.html', prediction_text=result)
 
-if st.button("Restart Game"):
-    st.session_state.secret_number = random.randint(1,100)
-    st.session_state.guesses = [0]
-    st.session_state.feedback = ""
-    st.experimental_rerun()
-    
+if __name__ =='__main__':
+    app.run(debug= True)
