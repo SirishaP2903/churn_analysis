@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Churn Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            max-width: 400px;
+            margin-top: 20px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 4px;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px;
+            width: 100%;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Churn Prediction</h1>
+    <form id="churnForm">
+        <label>Customer ID:
+            <input type="number" name="customer_id" required>
+        </label>
+        <label>Gender:
+            <select name="gender" required>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+            </select>
+        </label>
+        <label>Age:
+            <input type="number" name="age" required>
+        </label>
+        <label>Tenure:
+            <input type="number" name="tenure" required>
+        </label>
+        <label>Balance:
+            <input type="number" name="balance" step="0.01" required>
+        </label>
+        <label>Number of Products:
+            <input type="number" name="products_number" required>
+        </label>
+        <label>Has Credit Card (1 = Yes, 0 = No):
+            <input type="number" name="has_credit_card" min="0" max="1" required>
+        </label>
+        <label>Is Active Member (1 = Yes, 0 = No):
+            <input type="number" name="is_active_member" min="0" max="1" required>
+        </label>
+        <label>Estimated Salary:
+            <input type="number" name="estimated_salary" step="0.01" required>
+        </label>
+        <button type="submit">Predict Churn</button>
+    </form>
+
+    <div id="result"></div>
+
+    <script>
+        const form = document.getElementById('churnForm');
+        const resultDiv = document.getElementById('result');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = isNaN(value) ? value : Number(value);
+            });
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                resultDiv.textContent = `Churn Prediction: ${result.churn_prediction}`;
+            } catch (error) {
+                resultDiv.textContent = 'Error: Could not get prediction';
+                console.error(error);
+            }
+        });
+    </script>
+</body>
+</html>
