@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Customer Churn Prediction</title>
+</head>
+<body>
+    <h2>Customer Churn Prediction</h2>
+
+    <form action="/predict" method="post">
+        Gender (0=Female, 1=Male): <input type="text" name="gender"><br>
+        Age: <input type="text" name="age"><br>
+        Tenure: <input type="text" name="tenure"><br>
+        Balance: <input type="text" name="balance"><br>
+        Products Number: <input type="text" name="products_number"><br>
+        Has Credit Card (0/1): <input type="text" name="has_credit_card"><br>
+        Is Active Member (0/1): <input type="text" name="is_active_member"><br>
+        Estimated Salary: <input type="text" name="estimated_salary"><br><br>
+
+        <input type="submit" value="Predict">
+    </form>
+
+    <h3>{{ prediction_text }}</h3>
+</body>
+</html>
